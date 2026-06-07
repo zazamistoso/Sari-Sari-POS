@@ -1,0 +1,24 @@
+{
+  "name": "zaras-store-pos",
+  "version": "1.0.0",
+  "description": "POS system for Zara's Store",
+  "main": "electron/main.js",
+  "scripts": {
+    "dev:vite": "vite",
+    "dev:electron": "electron .",
+    "dev": "concurrently \"npm run dev:vite\" \"npm run dev:electron\""
+  },
+  "keywords": [],
+  "author": "Zara",
+  "license": "ISC",
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.2.1",
+    "concurrently": "^10.0.3",
+    "electron": "^29.1.0",
+    "vite": "^5.1.4"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  }
+}
