@@ -1,10 +1,10 @@
-import React from 'react'
+import { StrictMode } from 'react'
 import ReactDOM from 'react-dom/client'
 import './index.css'
-import POSPage from './pages/POSPage'
+import App from './App'
 
-function App() {
-  return <POSPage />
-}
-
-ReactDOM.createRoot(document.getElementById('root')).render(<App />)
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <StrictMode>
+    <App />
+  </StrictMode>
+)
