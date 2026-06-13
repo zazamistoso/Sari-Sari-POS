@@ -7,5 +7,9 @@ contextBridge.exposeInMainWorld('api', {
     search: (query) => ipcRenderer.invoke('products:search', query),
     upsert: (product) => ipcRenderer.invoke('products:upsert', product),
     delete: (id) => ipcRenderer.invoke('products:delete', id),
+  },
+  transactions: {
+    create: (data) => ipcRenderer.invoke('transactions:create', data),
+    getSummary: (period) => ipcRenderer.invoke('transactions:getSummary', period),
   }
 })

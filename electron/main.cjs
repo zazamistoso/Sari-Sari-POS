@@ -59,6 +59,48 @@ ipcMain.handle('products:delete', (_, id) => {
   return { success: true }
 })
 
+ipcMain.handle('transactions:create', (_, { type, items, total, amountTendered }) => {
+  const change = amountTendered != null ? amountTendered - total : null
+
+  const insertTx = db.prepare(`
+    INSERT INTO transactions (type, total, amount_tendered, change)
+    VALUES (?, ?, ?, ?)
+  `)
+  const insertItem = db.prepare(`
+    INSERT INTO transaction_items (transaction_id, product_id, product_name, quantity, unit_price, subtotal)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `)
+
+  const run = db.transaction(() => {
+    const result = insertTx.run(type, total, amountTendered ?? null, change)
+    const txId = result.lastInsertRowid
+
+    for (const item of items) {
+      insertItem.run(txId, item.product_id, item.name, item.quantity, item.unit_price, item.subtotal)
+    }
+
+    return { id: txId }
+  })
+
+  return run()
+})
+
+ipcMain.handle('transactions:getSummary', (_, period) => {
+  let dateFilter = ''
+  if (period === 'today') dateFilter = "AND date(created_at) = date('now')"
+  else if (period === 'week') dateFilter = "AND created_at >= datetime('now', '-7 days')"
+  else if (period === 'month') dateFilter = "AND created_at >= datetime('now', '-30 days')"
+
+  return db.prepare(`
+    SELECT
+      COUNT(*) as transaction_count,
+      COALESCE(SUM(total), 0) as total_sales,
+      COALESCE(SUM(CASE WHEN type='retail' THEN total ELSE 0 END), 0) as retail_sales,
+      COALESCE(SUM(CASE WHEN type='wholesale' THEN total ELSE 0 END), 0) as wholesale_sales
+    FROM transactions WHERE 1=1 ${dateFilter}
+  `).get()
+})
+
 app.whenReady().then(() => {
   db = require('./database.cjs')
   createWindow()

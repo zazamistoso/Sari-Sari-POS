@@ -21,4 +21,27 @@ db.exec(`
   )
 `)
 
+db.exec(`
+  CREATE TABLE IF NOT EXISTS transactions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    type TEXT NOT NULL CHECK(type IN ('retail', 'wholesale')),
+    total REAL NOT NULL,
+    amount_tendered REAL,
+    change REAL,
+    created_at TEXT DEFAULT (datetime('now'))
+  )
+`)
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS transaction_items (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    transaction_id INTEGER NOT NULL REFERENCES transactions(id),
+    product_id INTEGER REFERENCES products(id),
+    product_name TEXT NOT NULL,
+    quantity INTEGER NOT NULL,
+    unit_price REAL NOT NULL,
+    subtotal REAL NOT NULL
+  )
+`)
+
 module.exports = db

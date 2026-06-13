@@ -69,6 +69,19 @@ function POSPage() {
     setEditingQty(null)
   }
 
+  async function handleConfirm() {
+    await window.api.transactions.create({
+      type: mode,
+      items: cart,
+      total,
+      amountTendered: tendered ? parseFloat(tendered) : null,
+    })
+
+    setCart([])
+    setTendered('')
+    setShowCheckout(false)
+  }
+
   return (
     <div className="h-full bg-gray-950 text-white flex">
 
@@ -230,6 +243,7 @@ function POSPage() {
                 Cancel
               </button>
               <button
+                onClick={handleConfirm}
                 disabled={change !== null && change < 0}
                 className="flex-1 py-3 rounded-lg bg-blue-500 text-white font-bold uppercase tracking-wider disabled:opacity-50"
               >
