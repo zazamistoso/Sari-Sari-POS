@@ -7,6 +7,7 @@ function POSPage() {
   const [tendered, setTendered] = useState('')
   const [search, setSearch] = useState('')
   const [searchResults, setSearchResults] = useState([])
+  const [editingQty, setEditingQty] = useState(null)
 
   const total = cart.reduce((sum, item) => sum + item.subtotal, 0)
   const change = tendered !== '' ? parseFloat(tendered) - total : null
@@ -51,6 +52,21 @@ function POSPage() {
 
   function removeFromCart(productId) {
     setCart(prev => prev.filter(i => i.product_id !== productId))
+  }
+
+  function updateQuantity(productId, newQty) {
+    const qty = parseInt(newQty)
+    if (!qty || qty < 1) {
+      setEditingQty(null)
+      return
+    }
+
+    setCart(prev => prev.map(item =>
+      item.product_id === productId
+        ? { ...item, quantity: qty, subtotal: qty * item.unit_price }
+        : item
+    ))
+    setEditingQty(null)
   }
 
   return (
@@ -118,7 +134,25 @@ function POSPage() {
                   <tr key={item.product_id} className="border-b border-gray-100">
                     <td className="py-3 font-medium">{item.name}</td>
                     <td className="py-3 text-gray-500">₱{item.unit_price.toFixed(2)}</td>
-                    <td className="py-3">{item.quantity}</td>
+                    <td className="py-3">
+                      {editingQty === item.product_id ? (
+                        <input
+                          type="number"
+                          autoFocus
+                          className="w-16 h-10 border-2 border-blue-500 rounded-lg p-1 text-center text-lg font-bold"
+                          defaultValue={item.quantity}
+                          onBlur={e => updateQuantity(item.product_id, e.target.value)}
+                          onKeyDown={e => e.key === 'Enter' && updateQuantity(item.product_id, e.target.value)}
+                        />
+                      ) : (
+                        <button
+                          onClick={() => setEditingQty(item.product_id)}
+                          className="w-10 h-10 border-2 border-blue-400 rounded-lg bg-blue-50 text-blue-600 font-bold text-lg hover:bg-blue-100"
+                        >
+                          {item.quantity}
+                        </button>
+                      )}
+                    </td>
                     <td className="py-3 font-bold text-blue-500">₱{item.subtotal.toFixed(2)}</td>
                     <td className="py-3">
                       <button
